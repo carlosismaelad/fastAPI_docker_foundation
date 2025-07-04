@@ -210,7 +210,7 @@ pip install -e .
 
 ## 12. Criar `Dockerfile.dev`
 
-Voccê poderá usar o exemplo abaixo:
+Você poderá usar o exemplo abaixo:
 
 ```dockerfile
 # Builder app image
@@ -279,6 +279,40 @@ COPY create-databases.sh /docker-entrypoint-initdb.d/
 ## 15. Criar `docker-compose.yaml`
 
 Para orquestrar os containers da aplicação e do banco de dados.
+
+Você pode nomeá-lo de docker-compose.yaml ou apenas compose.yaml.
+
+Se desejar, use o exemplo abaixo:
+
+```yaml
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "8000:8000"
+    environment:
+      APP_DB_uri: "postgresql://postgres:postgres@db:5432/${APP_DB:-dbname}"
+      APP_DB_connect_args: "{}"
+    volumes:
+      - .:/home/app/api
+    depends_on:
+      - db
+    stdin_open: true
+    tty: true
+  db:
+    build: postgres
+    image: app_postgres-13-alpine-multi-user
+    volumes:
+      - $HOME/.postgres/app_db/data/postgresql:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DBS=dbname, dbname_test
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+```
 
 ## 16. Subir containers
 
