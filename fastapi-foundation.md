@@ -67,7 +67,7 @@ estrutura = {
         "Dockerfile",
         "create-databases.sh"
     ],
-    "pamps": [
+    "nome_do_projeto": [
         "default.toml",
         "__init__.py",
         "cli.py",
@@ -77,12 +77,12 @@ estrutura = {
         "security.py",
         "config.py"
     ],
-    "pamps/models": [
+    "nome_do_projeto/models": [
         "__init__.py",
         "post.py",
         "user.py"
     ],
-    "pamps/routes": [
+    "nome_do_projeto/routes": [
         "__init__.py",
         "auth.py",
         "post.py",
@@ -141,9 +141,9 @@ Configure título, versão e descrição da aplicação FastAPI.
 from fastapi import FastAPI
 
 app = FastAPI(
-    title="Pamps",
+    title="Titulo do app",
     version="0.1.0",
-    description="Pamps is a posting app",
+    description="Descrição do projeto",
 )
 ```
 
@@ -154,7 +154,7 @@ app = FastAPI(
 Arquivo onde listamos os pacotes incluídos no pacote Python:
 
 ```text
-graft pamps
+graft nome-do-projeto
 ```
 
 ### b. Criar o `setup.py` na raiz do projeto
@@ -166,6 +166,7 @@ import io
 import os
 from setuptools import find_packages, setup
 
+# função para entrada de arquivos 
 def read(*paths, **kwargs):
     content = ''
     with io.open(
@@ -175,6 +176,7 @@ def read(*paths, **kwargs):
         content = open_file.read().strip()
     return content
 
+# função para obter as dependências do projeto
 def read_requirements(path):
     return [
         line.strip()
@@ -183,19 +185,19 @@ def read_requirements(path):
     ]
 
 setup(
-    name="pamps",
+    name="nome-do-projeto",
     version="0.1.0",
-    description="Pamps is a posting app",
-    url="https://pamps.io",
+    description="descrição do que é o projeto",
+    url="https://nome_do_projeto.io",
     python_requires=">=3.12",
-    long_description="Pamps is a social posting app",
+    long_description="Uma descrição mais detalhada do projeto",
     long_description_content_type="text/markdown",
     author="Marshall Mellow",
     packages=find_packages(exclude=["tests"]),
     include_package_data=True,
     install_requires=read_requirements("requirements.txt"),
     entry_points={
-        "console_scripts": ["pamps = pamps.cli:main"]
+        "console_scripts": ["nome_do_projeto = nome_do_projeto.cli:main"]
     }
 )
 ```
@@ -207,6 +209,34 @@ pip install -e .
 ```
 
 ## 12. Criar `Dockerfile.dev`
+
+Voccê poderá usar o exemplo abaixo:
+
+```dockerfile
+# Builder app image
+FROM python:3.12
+
+#Create directory
+RUN mkdir -p /home/app
+
+# Create the app user
+RUN groupadd app && useradd -g app app
+
+#Create the home directory
+ENV APP_HOME=/home/app/api
+RUN mkdir -p $APP_HOME
+WORKDIR $APP_HOME
+
+# install
+COPY . $APP_HOME
+RUN pip install -r requirements-dev.txt
+RUN pip install -e .
+
+RUN chown -R app:app $APP_HOME
+USER app
+
+CMD [ "uvicorn", "nome_do_projeto.app:app", "--host=0.0.0.0", "--port=8000", "--reload" ]
+```
 
 Para gerar a imagem da aplicação:
 
